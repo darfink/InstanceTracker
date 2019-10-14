@@ -1,0 +1,6 @@
+## Interface: 11302
+## Title: Instance Counter
+## Author: Darfink
+## SavedVariables: InstanceCounterDB
+
+InstanceCounter.lua
