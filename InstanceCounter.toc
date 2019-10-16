@@ -1,6 +1,11 @@
 ## Interface: 11302
 ## Title: Instance Counter
 ## Author: Darfink
+## Version: 0.0.1
 ## SavedVariables: InstanceCounterDB
 
+# Libraries
+Libs\Libs.xml
+
+# Addon
 InstanceCounter.lua
