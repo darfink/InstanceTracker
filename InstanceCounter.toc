@@ -8,4 +8,11 @@
 Libs\Libs.xml
 
 # Addon
-InstanceCounter.lua
+Source\Utility\Constants.lua
+Source\Utility\Functions.lua
+Source\Utility\EventEmitter.lua
+Source\Instance\Observer.lua
+Source\Instance\SessionManager.lua
+Source\Persistence.lua
+Source\Addon.lua
+Source\Main.lua
