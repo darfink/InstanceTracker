@@ -1,27 +1,33 @@
-select(2, ...) 'Utility.EventEmitter'
+select(2, ...) 'Shared.EventSource'
 
 ------------------------------------------
 -- Class definition
 ------------------------------------------
 
-local EventEmitter = {}
-EventEmitter.__index = EventEmitter
+local EventSource = {}
+EventSource.__index = EventSource
+
+------------------------------------------
+-- Constructor
+------------------------------------------
+
+-- Creates a new event source
+function EventSource.New(frame)
+  local self = setmetatable({}, EventSource)
+
+  self.frame = frame or CreateFrame('Frame')
+  self.frame:SetScript('OnEvent', function (_, event, ...) self:_OnEvent(event, ...) end)
+  self.eventListeners = {}
+
+  return self
+end
 
 ------------------------------------------
 -- Public methods
 ------------------------------------------
 
--- Creates a new event emitter
-function EventEmitter.New(frame)
-  local self = setmetatable({}, EventEmitter)
-  self.frame = frame
-  self.frame:SetScript('OnEvent', function (_, event, ...) self:_OnEvent(event, ...) end)
-  self.eventListeners = {}
-  return self
-end
-
 -- Adds a new listener for an event
-function EventEmitter:AddListener(event, listener)
+function EventSource:AddListener(event, listener)
   if self.eventListeners[event] == nil then
     self.frame:RegisterEvent(event)
     self.eventListeners[event] = {}
@@ -31,7 +37,7 @@ function EventEmitter:AddListener(event, listener)
 end
 
 -- Removes an existing listener from an event
-function EventEmitter:RemoveListener(event, listener)
+function EventSource:RemoveListener(event, listener)
   if self.eventListeners[event] == nil then
     return
   end
@@ -48,7 +54,7 @@ end
 -- Private methods
 ------------------------------------------
 
-function EventEmitter:_OnEvent(event, ...)
+function EventSource:_OnEvent(event, ...)
   for listener, _ in pairs(self.eventListeners[event]) do
     listener(...)
   end
@@ -58,4 +64,4 @@ end
 -- Exports
 ------------------------------------------
 
-export.New = function(...) return EventEmitter.New(...) end
+export.New = function(...) return EventSource.New(...) end

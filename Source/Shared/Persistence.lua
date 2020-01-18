@@ -1,7 +1,4 @@
-select(2, ...) 'Persistence'
-
--- Imports
-local const = require 'Utility.Constants'
+select(2, ...) 'Shared.Persistence'
 
 ------------------------------------------
 -- Class definition
@@ -11,13 +8,14 @@ local Persistence = {}
 Persistence.__index = Persistence
 
 ------------------------------------------
--- Public methods
+-- Constructor
 ------------------------------------------
 
--- Returns the singleton persistence object
+-- Creates a new persistence object
 function Persistence.New(persistentTableName)
-  local persistentTableName = persistentTableName or (const.ADDON_NAME .. 'DB')
-  _G[persistentTableName] = _G[persistentTableName] or { realms = {} }
+  assert(type(persistentTableName) == 'string')
+
+  _G[persistentTableName] = _G[persistentTableName] or { items = {}, realms = {} }
   local persistentTable = _G[persistentTableName]
 
   local realm = GetRealmName()
@@ -35,8 +33,18 @@ function Persistence.New(persistentTableName)
 end
 
 ------------------------------------------
--- Public functions
+-- Public methods
 ------------------------------------------
+
+-- Gets a persistent entry for all realms
+function Persistence:GetAccountItem(entryName, defaultValue)
+  assert(entryName ~= nil)
+  if self.persistentTable.items[entryName] == nil then
+    self.persistentTable.items[entryName] = defaultValue or {}
+  end
+
+  return self.persistentTable.items[entryName]
+end
 
 -- Gets a persistent entry for the current realm
 function Persistence:GetRealmItem(entryName, defaultValue)

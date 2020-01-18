@@ -1,0 +1,17 @@
+## Interface: 11303
+## Title: Instance Tracker
+## Author: Darfink
+## Version: 0.0.1
+## SavedVariables: InstanceTrackerDB
+
+# Libraries
+Libs\Libs.xml
+
+# Addon
+Source\Shared\Event.lua
+Source\Shared\EventSource.lua
+Source\Shared\Persistence.lua
+Source\Utility\Functions.lua
+Source\Utility\InstanceObserver.lua
+Source\InstanceController.lua
+Source\Main.lua

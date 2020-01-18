@@ -1,24 +1,27 @@
 select(2, ...) 'Main'
 
 -- Imports
-local const = require 'Utility.Constants'
+local LDBIcon = LibStub('LibDBIcon-1.0')
+local EventSource = require 'Shared.EventSource'
+local Persistence = require 'Shared.Persistence'
+local InstanceObserver = require 'Utility.InstanceObserver'
 local util = require 'Utility.Functions'
-local EventEmitter = require 'Utility.EventEmitter'
-local Persistence = require 'Persistence'
-local Addon = require 'Addon'
+local InstanceController = require 'InstanceController'
 
 ------------------------------------------
 -- Bootstrap
 ------------------------------------------
 
-local eventEmitter = EventEmitter.New(CreateFrame('Frame'))
-local addon = nil
+local eventSource = EventSource.New()
 
-eventEmitter:AddListener('ADDON_LOADED', function (addonName)
-  if addonName ~= const.ADDON_NAME then
+eventSource:AddListener('ADDON_LOADED', function (addonName)
+  if addonName ~= util.GetAddonName() then
     return
   end
 
-  local persistence = Persistence.New()
-  addon = Addon.New(persistence, eventEmitter)
+  local persistence = Persistence.New(addonName .. 'DB')
+  local instanceObserver = InstanceObserver.New(eventSource)
+  local instanceController = InstanceController.New(persistence, instanceObserver)
+
+  LDBIcon:Register(addonName, instanceController:GetBroker(), persistence:GetCharacterItem('minimap'))
 end)

@@ -1,42 +1,35 @@
 select(2, ...) 'Utility.Functions'
 
--- Imports
-local const = require 'Utility.Constants'
+------------------------------------------
+-- Constants
+------------------------------------------
+
+local addonName = select(1, ...)
 
 ------------------------------------------
 -- Public functions
 ------------------------------------------
 
-local stringToColorCache = {}
-
--- Converts a string to a deterministic color
-function export.StringToColor(string)
-  if stringToColorCache[string] ~= nil then
-    return stringToColorCache[string]
-  end
-
-  local hash = 0
-  for c in string:gmatch('.') do
-    hash = c:byte() + bit.lshift(hash, 5) - hash
-  end
-
-  local colors = { 'ff' }
-  for i = 0,2 do
-    local value = bit.band(bit.rshift(hash, i * 8), 0xFF)
-    colors[#colors + 1] = format('%02x', value)
-  end
-
-  stringToColorCache[string] = table.concat(colors)
-  return stringToColorCache[string]
+-- Returns the addon's name
+function export.GetAddonName()
+  return addonName
 end
 
--- Converts a number to a green/yellow/red color
-function export.NumberToColor(value, max)
+-- Returns an image's resource path
+function export.GetImagePath(...)
+  return string.format('Interface\\AddOns\\%s\\Images\\%s.blp', addonName, table.concat({...}, '\\'))
+end
+
+-- Rounds a number to its nearest integer
+function export.Round(value)
+  return math.floor(value + 0.5)
+end
+
+-- Converts a ratio to a green/yellow/red color
+function export.RatioToColor(value, max)
   value = value * (510 / max)
 
-  local red = 0
-  local green = 0
-
+  local red, green
   if value < 0xFF then
     green = 0xFF;
     red = math.sqrt(value) * 16;
@@ -48,7 +41,7 @@ function export.NumberToColor(value, max)
     green = math.floor(green + 0.5);
   end
 
-  return format('ff%02x%02x00', red, green)
+  return CreateColor(red / 0xFF, green / 0xFF, 0)
 end
 
 -- Invokes a callback after a delay
@@ -56,16 +49,38 @@ function export.SetTimeout(delay, callback)
   return C_Timer.After(delay, callback)
 end
 
--- Binds an argument to a function
-function export.Bind(context, callee)
-  return function(...)
-    return callee(context, ...)
-  end
+-- Returns a read only version of a table
+function export.ReadOnly(table)
+  return setmetatable({}, {
+    __index = table,
+    __newindex = function() error('Attempt to modify read-only table') end,
+    __metatable = false,
+  })
+end
+
+-- Returns a table which exposes context bound methods
+function export.ContextBinder(context)
+  return setmetatable({}, {
+    __index = function (self, key)
+      local method = context[key]
+
+      if type(method) ~= 'function' then
+        error('Unknown method ' .. key)
+      end
+
+      self[key] = function(...)
+        return method(context, ...)
+      end
+
+      return rawget(self, key)
+    end,
+    __metatable = false,
+  })
 end
 
 -- Registers an in-game slash command
 function export.RegisterSlashCommand(command, callback)
-  local identifier = (const.ADDON_NAME .. '_' .. command):upper()
+  local identifier = (addonName .. '_' .. command):upper()
   _G['SLASH_' .. identifier .. '1'] = '/' .. command
   _G.SlashCmdList[identifier] = callback
 end
